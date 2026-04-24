@@ -35,6 +35,12 @@ MACClean 不会自动清理任何内容。
 
 ## 运行
 
+可以在 GitHub Releases 下载 `.dmg` 安装包：
+
+- [Releases](https://github.com/wujian1992/MACClean/releases)
+
+源码运行：
+
 ```sh
 git clone https://github.com/wujian1992/MACClean.git
 cd MACClean
@@ -54,10 +60,52 @@ swift run MACClean
 swift build
 ```
 
+本地打包 `.dmg`：
+
+```sh
+VERSION=0.1.0 BUILD_NUMBER=1 ./scripts/build-dmg.sh
+```
+
+打包结果会生成在：
+
+```text
+dist/MACClean-0.1.0.dmg
+```
+
+## GitHub Actions 自动打包
+
+项目已配置 GitHub Actions：
+
+- 手动触发：进入 GitHub 仓库的 `Actions` 页面，选择 `Build DMG`，点击 `Run workflow`。
+- 发版触发：推送 `v*` 标签后自动构建 `.dmg`，并创建 GitHub Release。
+
+发布一个新版本：
+
+```sh
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+未配置开发者证书时，workflow 会生成 ad-hoc 签名的 `.dmg`，用户首次打开时可能看到 macOS 安全提示。
+
+如果需要 Developer ID 签名和 Apple 公证，在 GitHub 仓库 `Settings -> Secrets and variables -> Actions` 中配置：
+
+```text
+APPLE_CERTIFICATE_BASE64
+APPLE_CERTIFICATE_PASSWORD
+KEYCHAIN_PASSWORD
+CODESIGN_IDENTITY
+APPLE_ID
+APPLE_TEAM_ID
+APPLE_APP_SPECIFIC_PASSWORD
+```
+
 ## 项目结构
 
 ```text
 Package.swift
+.github/workflows/release.yml
+scripts/build-dmg.sh
 Sources/MACClean/
   MACCleanApp.swift
   ContentView.swift
