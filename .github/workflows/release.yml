@@ -3,6 +3,8 @@ name: Build DMG
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags:
       - "v*"
 
@@ -92,3 +94,16 @@ jobs:
         with:
           files: dist/MACClean-${{ steps.version.outputs.version }}.dmg
           generate_release_notes: true
+
+      - name: Publish latest package for main
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          git tag -f latest "$GITHUB_SHA"
+          git push origin refs/tags/latest --force
+          gh release create latest "dist/MACClean-${{ steps.version.outputs.version }}.dmg" \
+            --title "Latest main build" \
+            --notes "Automated DMG build from main commit $GITHUB_SHA." \
+            --latest
